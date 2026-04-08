@@ -1,0 +1,45 @@
+package com.ecommerce.api.service;
+
+import com.ecommerce.api.entity.Seller;
+import com.ecommerce.api.repository.SellerRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class SellerService {
+
+    private final SellerRepository sellerRepository;
+
+    public SellerService(SellerRepository sellerRepository) {
+        this.sellerRepository = sellerRepository;
+    }
+
+    public List<Seller> findAll() {
+        return sellerRepository.findAll();
+    }
+
+    public Seller findById(Long id) {
+        return sellerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("RESOURCE_NOT_FOUND"));
+    }
+
+    public Seller save(Seller seller) {
+        return sellerRepository.save(seller);
+    }
+
+    // Mise à jour partielle : email interdit
+    public Seller updateSeller(Long id, Seller updated) {
+        Seller seller = findById(id);
+        if (updated.getStoreName() != null) seller.setStoreName(updated.getStoreName());
+        if (updated.getPhone() != null) seller.setPhone(updated.getPhone());
+        if (updated.getAddress() != null) seller.setAddress(updated.getAddress());
+        if (updated.getRating() != null) seller.setRating(updated.getRating());
+        // Email ignoré volontairement
+        return sellerRepository.save(seller);
+    }
+
+    public void delete(Long id) {
+        sellerRepository.deleteById(id);
+    }
+}
