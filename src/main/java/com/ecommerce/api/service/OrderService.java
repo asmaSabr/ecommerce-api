@@ -47,6 +47,6 @@ public class OrderService {
 
     // Filtrer par produit
     public List<Order> findByProduct(Long productId) {
-        return orderRepository.findByProducts_Id(productId);
+        return orderRepository.findByItems_Product_Id(productId);
     }
 }

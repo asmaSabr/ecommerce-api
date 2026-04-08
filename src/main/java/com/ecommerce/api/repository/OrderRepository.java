@@ -9,12 +9,10 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    // Recherche par nom du client
+    // Trouver les commandes par nom du customer
     List<Order> findByCustomerName(String customerName);
 
-    // Recherche par statut
-    List<Order> findByStatus(OrderStatus status);
-
-    // Recherche par produit (via relation ManyToMany)
-    List<Order> findByProducts_Id(Long productId);
+    // Trouver les commandes qui contiennent un produit spécifique
+    // Spring lit : Order → items → product → id
+    List<Order> findByItems_Product_Id(Long productId);
 }

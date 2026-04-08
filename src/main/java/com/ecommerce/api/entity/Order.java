@@ -2,7 +2,9 @@ package com.ecommerce.api.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,33 +12,34 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "orders") // éviter conflit avec mot réservé SQL
+@Table(name = "orders")
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotBlank(message = "Customer name is required")
     private String customerName;
 
-    @ManyToMany
-    @NotEmpty(message = "Order must contain at least one product")
-    private List<Product> products;
-
-    @NotNull
-    @DecimalMin(value = "0.1", message = "Total amount must be greater than 0")
-    private Double totalAmount;
+    //  OneToMany vers OrderItem au lieu de ManyToMany vers Product
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
 
     @Embedded
     @NotNull(message = "Shipping address is required")
     private Address shippingAddress;
 
     @Enumerated(EnumType.STRING)
-    @NotNull(message = "Status is required")
     private OrderStatus status = OrderStatus.PENDING;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @CreationTimestamp //  géré par Hibernate, pas à la construction
+    private LocalDateTime createdAt;
 
-
+    // calculé dynamiquement, jamais désynchronisé
+    public Double getTotalAmount() {
+        return items.stream()
+                .mapToDouble(item -> item.getPriceAtOrder() * item.getQuantity())
+                .sum();
+    }
 }
