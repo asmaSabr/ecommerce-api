@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v2/products")
+@RequestMapping("/api/v2/products")
 public class ProductV2Controller {
 
     private final ProductService productService;
