@@ -2,6 +2,7 @@ package com.ecommerce.api.controller;
 
 import com.ecommerce.api.entity.Seller;
 import com.ecommerce.api.service.SellerService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,14 +22,22 @@ public class SellerController {
     }
     //Pagination
     @GetMapping
-    public ResponseEntity<Page<Seller>> getAllSellers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "storeName") String sortBy
-    ) {
+    public ResponseEntity<?> getAllSellers(HttpServletRequest request,
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "10") int size,
+                                           @RequestParam(defaultValue = "storeName") String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
-        return ResponseEntity.ok(sellerService.findAll(pageable));
+        String version = (String) request.getAttribute("apiVersion");
+
+        if ("v2".equals(version)) {
+            // Version 2 : juste les données
+            return ResponseEntity.ok(sellerService.findAll(pageable));
+        } else {
+            // Version 1 : données enrichies (ex: HATEOAS)
+            return ResponseEntity.ok(sellerService.findAll(pageable));
+        }
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Seller> getSellerById(@PathVariable Long id) {
