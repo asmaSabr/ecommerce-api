@@ -79,6 +79,20 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    //Search using customerName
+    @GetMapping(params = "search")
+    public ResponseEntity<List<OrderResponseDTO>> searchOrders(@RequestParam String search) {
+        List<OrderResponseDTO> orders = orderRepository
+                .findByCustomerNameContainingIgnoreCase(search) // 🔍 recherche par nom client
+                .stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(orders);
+    }
+
+
+
+
     // ─────────────────────────────────────────
     // POST /api/v1/orders → créer une commande
     // ─────────────────────────────────────────

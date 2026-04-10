@@ -15,4 +15,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // Trouver les commandes qui contiennent un produit spécifique
     // Spring lit : Order → items → product → id
     List<Order> findByItems_Product_Id(Long productId);
+
+    //Rechercher toutes les commandes du client dont le nom du customerName
+    List<Order> findByCustomerNameContainingIgnoreCase(String customerName);
+
 }
