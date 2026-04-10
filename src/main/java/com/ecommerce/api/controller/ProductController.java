@@ -62,6 +62,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     //Pagination
+    @GetMapping
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

@@ -33,7 +33,8 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.PENDING;
 
-    @CreationTimestamp //  géré par Hibernate, pas à la construction
+    @CreationTimestamp//  géré par Hibernate, pas à la construction
+    @Column(name = "created_at", updatable = false)  // ← ajouter updatable = false
     private LocalDateTime createdAt;
 
     // calculé dynamiquement, jamais désynchronisé
