@@ -2,6 +2,10 @@ package com.ecommerce.api.controller;
 
 import com.ecommerce.api.entity.Seller;
 import com.ecommerce.api.service.SellerService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,10 +19,15 @@ public class SellerController {
     public SellerController(SellerService sellerService) {
         this.sellerService = sellerService;
     }
-
+    //Pagination
     @GetMapping
-    public ResponseEntity<List<Seller>> getAllSellers() {
-        return ResponseEntity.ok(sellerService.findAll());
+    public ResponseEntity<Page<Seller>> getAllSellers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "storeName") String sortBy
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
+        return ResponseEntity.ok(sellerService.findAll(pageable));
     }
 
     @GetMapping("/{id}")

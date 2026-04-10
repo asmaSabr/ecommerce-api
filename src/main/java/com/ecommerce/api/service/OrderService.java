@@ -3,6 +3,8 @@ package com.ecommerce.api.service;
 import com.ecommerce.api.entity.Order;
 import com.ecommerce.api.entity.OrderStatus;
 import com.ecommerce.api.repository.OrderRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,5 +50,9 @@ public class OrderService {
     // Filtrer par produit
     public List<Order> findByProduct(Long productId) {
         return orderRepository.findByItems_Product_Id(productId);
+    }
+    // Pagination
+    public Page<Order> findAll(Pageable pageable) {
+        return orderRepository.findAll(pageable);
     }
 }

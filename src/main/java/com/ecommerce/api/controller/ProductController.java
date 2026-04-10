@@ -7,6 +7,10 @@ import com.ecommerce.api.entity.Seller;
 import com.ecommerce.api.repository.ProductRepository;
 import com.ecommerce.api.repository.SellerRepository;
 import com.ecommerce.api.service.ProductService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,20 +61,29 @@ public class ProductController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    @GetMapping
-    public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll().stream().map(product -> {
-            ProductResponse dto = new ProductResponse();
-            dto.setId(product.getId());
-            dto.setName(product.getName());
-            dto.setPrice(product.getPrice());
-            dto.setCurrency(product.getCurrency());
-            dto.setStock(product.getStock());
-            dto.setCategory(product.getCategory());
-            dto.setSellerId(product.getSeller().getId());
-            dto.setCreatedAt(product.getCreatedAt());
-            return dto;
-        }).toList();
+    //Pagination
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
+
+        Page<ProductResponse> products = productRepository.findAll(pageable)
+                .map(product -> {
+                    ProductResponse dto = new ProductResponse();
+                    dto.setId(product.getId());
+                    dto.setName(product.getName());
+                    dto.setPrice(product.getPrice());
+                    dto.setCurrency(product.getCurrency());
+                    dto.setStock(product.getStock());
+                    dto.setCategory(product.getCategory());
+                    dto.setSellerId(product.getSeller().getId());
+                    dto.setCreatedAt(product.getCreatedAt());
+                    return dto;
+                });
+
+        return ResponseEntity.ok(products);
     }
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
@@ -120,8 +133,6 @@ public class ProductController {
         productRepository.delete(product);
         return ResponseEntity.noContent().build();
     }
-
-
 
 
 }

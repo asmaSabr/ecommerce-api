@@ -4,6 +4,10 @@ import com.ecommerce.api.dto.*;
 import com.ecommerce.api.entity.*;
 import com.ecommerce.api.repository.*;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,14 +30,18 @@ public class OrderController {
     // ─────────────────────────────────────────
     // GET /api/v1/orders → liste toutes les commandes
     // ─────────────────────────────────────────
+    //Pgination
     @GetMapping
-    public ResponseEntity<List<OrderResponseDTO>> getAll() {
-        List<OrderResponseDTO> orders = orderRepository.findAll()
-                .stream()
-                .map(this::toResponseDTO)
-                .collect(Collectors.toList());
+    public ResponseEntity<Page<OrderResponseDTO>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<OrderResponseDTO> orders = orderRepository.findAll(pageable)
+                .map(this::toResponseDTO);
         return ResponseEntity.ok(orders);
     }
+
 
     // ─────────────────────────────────────────
     // GET /api/v1/orders/{id} → commande par id
