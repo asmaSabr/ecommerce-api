@@ -4,6 +4,7 @@ import com.ecommerce.api.dto.ProductRequest;
 import com.ecommerce.api.dto.ProductResponse;
 import com.ecommerce.api.entity.Product;
 import com.ecommerce.api.entity.Seller;
+import com.ecommerce.api.exception.ResourceNotFoundException;
 import com.ecommerce.api.repository.ProductRepository;
 import com.ecommerce.api.repository.SellerRepository;
 import com.ecommerce.api.service.ProductService;
@@ -89,7 +90,7 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         ProductResponse dto = new ProductResponse();
         dto.setId(product.getId());
