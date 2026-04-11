@@ -2,6 +2,7 @@ package com.ecommerce.api.service;
 
 import com.ecommerce.api.entity.Order;
 import com.ecommerce.api.entity.OrderStatus;
+import com.ecommerce.api.exception.ResourceNotFoundException;
 import com.ecommerce.api.repository.OrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +25,7 @@ public class OrderService {
 
     public Order findById(Long id) {
         return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("RESOURCE_NOT_FOUND"));
+                .orElseThrow(() -> new ResourceNotFoundException("RESOURCE_NOT_FOUND"));
     }
 
     public Order save(Order order) {

@@ -1,6 +1,7 @@
 package com.ecommerce.api.service;
 
 import com.ecommerce.api.entity.Seller;
+import com.ecommerce.api.exception.ResourceNotFoundException;
 import com.ecommerce.api.repository.SellerRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,7 @@ public class SellerService {
 
     public Seller findById(Long id) {
         return sellerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("RESOURCE_NOT_FOUND"));
+                .orElseThrow(() -> new ResourceNotFoundException("RESOURCE_NOT_FOUND"));
     }
 
     public Seller save(Seller seller) {
