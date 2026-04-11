@@ -14,7 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.CacheControl;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 @RestController
@@ -31,11 +32,9 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request) {
-        // Charger le Seller à partir de l’ID
         Seller seller = sellerRepository.findById(request.getSellerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Seller not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("RESOURCE_NOT_FOUND"));
 
-        // Mapper le DTO vers l’entité
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
@@ -49,20 +48,10 @@ public class ProductController {
 
         Product saved = productRepository.save(product);
 
-        // Mapper l’entité vers le DTO de réponse
-        ProductResponse response = new ProductResponse();
-        response.setId(saved.getId());
-        response.setName(saved.getName());
-        response.setPrice(saved.getPrice());
-        response.setCurrency(saved.getCurrency());
-        response.setStock(saved.getStock());
-        response.setCategory(saved.getCategory());
-        response.setSellerId(saved.getSeller().getId());
-        response.setCreatedAt(saved.getCreatedAt());
-
+        ProductResponse response = toDto(saved);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    //Pagination
+
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
@@ -70,28 +59,47 @@ public class ProductController {
             @RequestParam(defaultValue = "createdAt") String sortBy
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
-
         Page<ProductResponse> products = productRepository.findAll(pageable)
-                .map(product -> {
-                    ProductResponse dto = new ProductResponse();
-                    dto.setId(product.getId());
-                    dto.setName(product.getName());
-                    dto.setPrice(product.getPrice());
-                    dto.setCurrency(product.getCurrency());
-                    dto.setStock(product.getStock());
-                    dto.setCategory(product.getCategory());
-                    dto.setSellerId(product.getSeller().getId());
-                    dto.setCreatedAt(product.getCreatedAt());
-                    return dto;
-                });
+                .map(this::toDto);
 
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
+                .body(products);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("RESOURCE_NOT_FOUND"));
 
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES).cachePublic())
+                .body(toDto(product));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("RESOURCE_NOT_FOUND"));
+
+        product.setPrice(request.getPrice());
+        product.setStock(request.getStock());
+
+        Product updated = productRepository.save(product);
+        return ResponseEntity.ok(toDto(updated));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("RESOURCE_NOT_FOUND"));
+
+        productRepository.delete(product);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ─── Helper ──────────────────────────────────────────────────────────────
+    private ProductResponse toDto(Product product) {
         ProductResponse dto = new ProductResponse();
         dto.setId(product.getId());
         dto.setName(product.getName());
@@ -101,41 +109,6 @@ public class ProductController {
         dto.setCategory(product.getCategory());
         dto.setSellerId(product.getSeller().getId());
         dto.setCreatedAt(product.getCreatedAt());
-
-        return ResponseEntity.ok(dto);
+        return dto;
     }
-    @PatchMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        // Seuls price et stock sont modifiables
-        product.setPrice(request.getPrice());
-        product.setStock(request.getStock());
-
-        Product updated = productRepository.save(product);
-
-        ProductResponse dto = new ProductResponse();
-        dto.setId(updated.getId());
-        dto.setName(updated.getName());
-        dto.setPrice(updated.getPrice());
-        dto.setCurrency(updated.getCurrency());
-        dto.setStock(updated.getStock());
-        dto.setCategory(updated.getCategory());
-        dto.setSellerId(updated.getSeller().getId());
-        dto.setCreatedAt(updated.getCreatedAt());
-
-        return ResponseEntity.ok(dto);
-    }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        productRepository.delete(product);
-        return ResponseEntity.noContent().build();
-    }
-
-
 }
-
