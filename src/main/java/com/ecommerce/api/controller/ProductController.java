@@ -8,6 +8,7 @@ import com.ecommerce.api.exception.ResourceNotFoundException;
 import com.ecommerce.api.repository.ProductRepository;
 import com.ecommerce.api.repository.SellerRepository;
 import com.ecommerce.api.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -52,15 +53,40 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping
-    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+    @GetMapping(produces = {
+            MediaType.APPLICATION_JSON_VALUE,
+            MediaType.APPLICATION_XML_VALUE,
+            "text/csv"
+    })
+
+    //Content Negociation
+    public ResponseEntity<?> getAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            HttpServletRequest request
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).descending());
         Page<ProductResponse> products = productRepository.findAll(pageable)
                 .map(this::toDto);
+
+        String accept = request.getHeader("Accept");
+        boolean wantsCsv = accept != null && accept.contains("text/csv")
+                && !accept.contains("application/json");
+        if (wantsCsv) {
+            StringBuilder csv = new StringBuilder("id,name,price,currency,stock\n");
+            for (ProductResponse p : products.getContent()) {
+                csv.append(p.getId()).append(",")
+                        .append(p.getName()).append(",")
+                        .append(p.getPrice()).append(",")
+                        .append(p.getCurrency()).append(",")
+                        .append(p.getStock()).append("\n");
+            }
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("text/csv"))
+                    .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
+                    .body(csv.toString());
+        }
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(5, TimeUnit.MINUTES).cachePublic())
