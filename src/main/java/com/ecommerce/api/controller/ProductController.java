@@ -33,7 +33,7 @@ public class ProductController {
     public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest request) {
         // Charger le Seller à partir de l’ID
         Seller seller = sellerRepository.findById(request.getSellerId())
-                .orElseThrow(() -> new RuntimeException("Seller not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Seller not found"));
 
         // Mapper le DTO vers l’entité
         Product product = new Product();
