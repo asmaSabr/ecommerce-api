@@ -6,6 +6,8 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,9 +49,9 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse("BODY_NOT_VALID", message, details));
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
+    @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handlePathNotFound(
-            NoSuchElementException ex, Locale locale) {
+             NoHandlerFoundException ex, Locale locale) {
         String message = messageSource.getMessage(
                 "PATH_NOT_FOUND", null, "Path not found", locale);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -60,8 +62,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleServerError(
             Exception ex, Locale locale) {
         String message = messageSource.getMessage(
-                "SERVER_ERROR", null, "Internal error", locale);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                "SERVER_ERROR", null, "Internal server error", locale);        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("SERVER_ERROR", message, null));
     }
 }
