@@ -10,11 +10,12 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Table(name = "sellers")
 public class Seller {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @NotBlank(message = "Store name is required")
     private String storeName;

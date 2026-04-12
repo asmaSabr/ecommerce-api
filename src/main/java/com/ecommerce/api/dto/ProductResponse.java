@@ -14,6 +14,6 @@ public class ProductResponse {
     private String currency;
     private Integer stock;
     private String category;
-    private Long sellerId; // on expose seulement l’ID du vendeur
+    private String  sellerId; // on expose seulement l’ID du vendeur
     private LocalDateTime createdAt;
 }

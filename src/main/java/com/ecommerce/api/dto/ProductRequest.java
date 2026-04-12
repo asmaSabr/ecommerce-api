@@ -16,5 +16,5 @@ public class ProductRequest {
     private List<String> images;
     private String thumbnail;
     private String category;
-    private Long sellerId; // juste l’ID du vendeur
+    private String  sellerId; // juste l’ID du vendeur
 }

@@ -22,7 +22,7 @@ public class SellerService {
         return sellerRepository.findAll(pageable);
     }
 
-    public Seller findById(Long id) {
+    public Seller findById(String  id) {
         return sellerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("RESOURCE_NOT_FOUND"));
     }
@@ -32,7 +32,7 @@ public class SellerService {
     }
 
     // Mise à jour partielle : email interdit
-    public Seller updateSeller(Long id, Seller updated) {
+    public Seller updateSeller(String id, Seller updated) {
         Seller seller = findById(id);
         if (updated.getStoreName() != null) seller.setStoreName(updated.getStoreName());
         if (updated.getPhone() != null) seller.setPhone(updated.getPhone());
@@ -42,7 +42,7 @@ public class SellerService {
         return sellerRepository.save(seller);
     }
 
-    public void delete(Long id) {
+    public void delete(String id) {
         sellerRepository.deleteById(id);
     }
 }

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class SellerResponse extends RepresentationModel<SellerResponse> {
-    private Long id;
+    private String id;
     private String storeName;
     private String email;
     private String phone;

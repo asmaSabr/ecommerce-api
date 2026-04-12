@@ -74,7 +74,7 @@ public class SellerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SellerResponse> getSellerById(@PathVariable Long id) {
+    public ResponseEntity<SellerResponse> getSellerById(@PathVariable String id) {
         Seller seller = sellerService.findById(id);
         SellerResponse dto = toDto(seller);
 
@@ -110,7 +110,7 @@ public class SellerController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<SellerResponse> updateSeller(
-            @PathVariable Long id,@Valid @RequestBody Seller updated) {
+            @PathVariable String id,@Valid @RequestBody Seller updated) {
 
         Seller seller = sellerService.updateSeller(id, updated);
         SellerResponse dto = toDto(seller);
@@ -123,7 +123,7 @@ public class SellerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSeller(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSeller(@PathVariable String  id) {
         sellerService.delete(id);
         return ResponseEntity.noContent().build();
     }
