@@ -16,10 +16,10 @@ public class Seller {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotBlank(message = "Store name is required")
     private String storeName;
 
-    @NotNull
+    @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
     @Column(unique = true)
     private String email;

@@ -4,6 +4,7 @@ import com.ecommerce.api.dto.SellerResponse;
 import com.ecommerce.api.entity.Seller;
 import com.ecommerce.api.service.SellerService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -96,7 +97,7 @@ public class SellerController {
     }
 
     @PostMapping
-    public ResponseEntity<SellerResponse> createSeller(@RequestBody Seller seller) {
+    public ResponseEntity<SellerResponse> createSeller(@Valid @RequestBody Seller seller) {
         Seller saved = sellerService.save(seller);
         SellerResponse dto = toDto(saved);
 
@@ -109,7 +110,7 @@ public class SellerController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<SellerResponse> updateSeller(
-            @PathVariable Long id, @RequestBody Seller updated) {
+            @PathVariable Long id,@Valid @RequestBody Seller updated) {
 
         Seller seller = sellerService.updateSeller(id, updated);
         SellerResponse dto = toDto(seller);
